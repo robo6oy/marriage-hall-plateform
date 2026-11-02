@@ -1,19 +1,33 @@
-import { useState as useStateSafe } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { priceLabel } from './data'
 import { availabilityFor } from './store'
 
 export function Header({ settings }) {
+  const [open, setOpen] = useState(false)
+  const close = () => setOpen(false)
   return (
     <header className="header">
       <div className="wrap nav">
-        <Link className="brand" to="/">{settings.businessName}</Link>
-        <nav>
-          <Link to="/">Home</Link><Link to="/halls">Halls</Link><Link to="/packages">Packages</Link>
-          <Link to="/services">Services</Link><Link to="/gallery">Gallery</Link><Link to="/about">About</Link>
-          <Link to="/faqs">FAQs</Link><Link to="/contact">Contact</Link>
+        <Link className="brand" to="/" onClick={close}>{settings.businessName}</Link>
+        <button
+          className="menu-btn"
+          type="button"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >{open ? '×' : '☰'}</button>
+        <nav className={`nav-links ${open ? 'open' : ''}`} aria-label="Main navigation">
+          <Link to="/" onClick={close}>Home</Link>
+          <Link to="/halls" onClick={close}>Halls</Link>
+          <Link to="/packages" onClick={close}>Packages</Link>
+          <Link to="/services" onClick={close}>Services</Link>
+          <Link to="/gallery" onClick={close}>Gallery</Link>
+          <Link to="/about" onClick={close}>About</Link>
+          <Link to="/faqs" onClick={close}>FAQs</Link>
+          <Link to="/contact" onClick={close}>Contact</Link>
         </nav>
-        <Link className="btn" to="/enquiry">Check Availability</Link>
+        <Link className="btn nav-cta" to="/enquiry" onClick={close}>Check Availability</Link>
       </div>
     </header>
   )
@@ -39,12 +53,25 @@ export function Footer({ settings }) {
   )
 }
 
+export function PageHero({ image, eyebrow, title, text }) {
+  return (
+    <section className="page-hero">
+      <img src={image} alt={title} />
+      <div className="page-hero-text">
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        <h2>{title}</h2>
+        {text && <p>{text}</p>}
+      </div>
+    </section>
+  )
+}
+
 export function Hero({ settings, title, subtitle }) {
   return (
     <section className="hero">
       <div className="hero-img"><img src={settings.heroImage} alt="Celebration hall" /></div>
       <div>
-        <p className="eyebrow">WELCOME TO {settings.businessName.toUpperCase()}</p>
+        <p className="eyebrow">Welcome to {settings.businessName}</p>
         <h1>{title || settings.tagline}</h1>
         {subtitle && <p className="lead">{subtitle}</p>}
         <p><Link className="btn" to="/enquiry">Check Availability</Link> <Link className="btn btn-dark" to="/halls">Explore Our Halls</Link></p>
@@ -70,9 +97,9 @@ export function HallCard({ hall }) {
 }
 
 export function AvailabilityChecker({ state, halls }) {
-  const [hallId, setHallId] = useStateSafe('')
-  const [date, setDate] = useStateSafe('')
-  const [result, setResult] = useStateSafe(null)
+  const [hallId, setHallId] = useState('')
+  const [date, setDate] = useState('')
+  const [result, setResult] = useState(null)
   function check(e) {
     e.preventDefault()
     if (!hallId || !date) { setResult({ kind: 'error', text: 'Please choose a hall and a date.' }); return }
